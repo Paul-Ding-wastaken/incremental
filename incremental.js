@@ -63,7 +63,7 @@ function updateDisplayedNumber() {
             displayedUnits.style.fontSize = "25vh";
             displayedUnits.style.bottom = "-5%";
             break;
-            
+
     }
 }
 
@@ -110,8 +110,7 @@ function buyUpgrade(x) {
         upgrades[x][0] = Math.round(upgrades[x][0] * (1.13 + 0.05 * upgrades[x][2]));
         checkAchivements();
         if (x == 7 || x == 11) {
-            if (secretRewardActive) {
-                console.log("here");
+            if (!rewardInfoText[6][2] && secretRewardActive) {
                 rewardInfoText[6][2] = (upgrades[7][2] != 0) && (upgrades[11][2] != 0);
             }
         }
@@ -137,11 +136,11 @@ function simplify(x) {
         return String(Math.floor(x / 1e3) / 1e3) + " Million Matter";
     } else if (x < 1e12) {
         return String(Math.floor(x / 1e6) / 1e3) + " Billion Matter";
-    } else if(x < 1e15){
+    } else if (x < 1e15) {
         return String(Math.floor(x / 1e9) / 1e3) + " Trillion Matter";
-    } else if(x < 1e18){
+    } else if (x < 1e18) {
         return String(Math.floor(x / 1e12) / 1e3) + " Quadrillion Matter";
-    } else{
+    } else {
         return "Error."
     }
 }
@@ -167,9 +166,13 @@ function updateAutoClick() {
 function handleClick(realClick) {
     totalClicks += (isGodMode ? 1000 : 1);
     numberOfClicks += realClick ? (isGodMode ? 1000 : 1) : 0;
-    numberOfAutoMatter += realClick ? 0 : matterPerClick *(isGodMode ? 1000 : 1);
+    numberOfAutoMatter += realClick ? 0 : matterPerClick * (isGodMode ? 1000 : 1);
     numberOfMatter += matterPerClick * (isGodMode ? 1000 : 1);
     numberOfMatterTotal += matterPerClick * (isGodMode ? 1000 : 1);
+    if(!rewardInfoText[5][2] && numberOfMatterTotal >= 1e12){
+        rewardInfoText[5][2] = true;
+        notificationSystem(rewardInfoText[5][0]);
+    }
     checkAchivements();
     updateDisplayedNumber();
 }
@@ -195,25 +198,36 @@ let rewardInfoText = [
 ]
 
 function checkAchivements() {
-    if (numberOfMatterTotal >= 1e6) {
+    if (secretRewardActive) {return }
+    if (!rewardInfoText[0][2] && numberOfMatterTotal >= 1e6) {
         rewardInfoText[0][2] = true;
+        notificationSystem(rewardInfoText[0][0]);
     }
-    if (numberOfMatterTotal >= 1e9) {
+    if (!rewardInfoText[2][2] && numberOfMatterTotal >= 1e9) {
         rewardInfoText[2][2] = true;
+        notificationSystem(rewardInfoText[2][0]);
     }
-    if (numberOfClicks >= 1000) {
+    if (!rewardInfoText[4][2] && numberOfClicks >= 1000) {
         rewardInfoText[4][2] = true;
+        notificationSystem(rewardInfoText[4][0]);
     }
-    if(timePlayed >= 60) {
+    if (!rewardInfoText[3][2] && timePlayed >= 60) {
         rewardInfoText[3][2] = true;
+        notificationSystem(rewardInfoText[3][0]);
     }
-    if (upgrades[2][2] != 0) {
+    if (!rewardInfoText[1][2] && upgrades[2][2] != 0) {
         rewardInfoText[1][2] = true;
+        notificationSystem(rewardInfoText[1][0]);
     }
-    if (numberOfMatterTotal >= 1e12) {
+    if (!rewardInfoText[5][2] && numberOfMatterTotal >= 1e12) {
         rewardInfoText[5][2] = true;
+        notificationSystem(rewardInfoText[5][0]);
     }
     secretRewardActive = rewardInfoText[0][2] && rewardInfoText[1][2] && rewardInfoText[2][2] && rewardInfoText[3][2] && rewardInfoText[4][2];
+    if (secretRewardActive) {
+        secretRewardArea.style.visibility = "visible";
+        notificationSystem("Secrets Active!");
+    }
 }
 
 let upgradeInfoText = [
@@ -280,12 +294,84 @@ function setTimePlayedInterval() {
 
 
 function notificationSystem(x) {
-
+    const clone = notificationTemplate.cloneNode(true);
+    clone.removeAttribute("id");
+    clone.style.display = "initial";
+    clone.querySelector("h2").innerHTML = x;
+    notificationArea.appendChild(clone);
+    setTimeout(() => {
+        clone.style.opacity = 0;
+        setTimeout(() => {
+            clone.remove();
+        }, 500);
+    }, 10000);
 }
 
-function activateGodMode(){
+function activateGodMode() {
     isGodMode = true;
+    notificationSystem("GodMode_Initialized!");
     setTimePlayedInterval();
 }
 
+function resetGame() {
 
+    numberOfMatter = 0;
+    numberOfMatterTotal = 0;
+    matterPerClick = 1;
+    autoClick = 0;
+
+    numberOfClicks = 0;
+    totalClicks = 0;
+    numberOfAutoMatter = 0;
+    timePlayed = 0;
+
+    isGodMode = false;
+    clearInterval(auto);
+
+    for (let i = 0; i < upgrades.length; i++) {
+        upgrades[i][2] = 0;
+    }
+
+    upgrades = [
+        [10, 1, 0],
+        [100, 5, 0],
+        [500, 50, 0],
+        [10000, 200, 0],
+        [900000, 800, 0],
+        [4e7, 3000, 0],
+        [1e9, 10000, 0],
+        [666666666666, 666666, 0],
+
+        [100, 1, 0],
+        [1e5, 50, 0],
+        [1e8, 2000, 0],
+        [333333333333, 333333, 0]
+    ];
+
+    for (let i = 0; i < rewardInfoText.length; i++) {
+        rewardInfoText[i][2] = false;
+    }
+
+    secretRewardActive = false;
+    secretRewardArea.style.visibility = "hidden";
+
+    notificationSystem("Reset game!");
+    updateDisplayedNumber();
+    updateUpgradePriceText();
+    updateAutoClick();
+    setTimePlayedInterval();
+}
+
+function addMatter(x) {
+    numberOfMatter += x;
+    numberOfMatterTotal += x;
+}
+
+function comingSoon() {
+    if (!rewardInfoText[7][2] && secretRewardActive) {
+        rewardInfoText[7][2] = true;
+        rewardInfoText[7][1] = "Thanks for playing!"
+        rewardInfoText[7][0] = "The End."
+        notificationSystem("Coming Soon!");
+    }
+}
