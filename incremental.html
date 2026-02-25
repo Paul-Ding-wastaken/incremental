@@ -131,6 +131,7 @@
             <p id="numberOfClicks">Number of clicks: <input value="0" disabled></p>
             <p id="matterGenerated">Matter Auto created: <input value="0" disabled></p>
             <button id="devPanelButton" onclick='{devPanel.style.visibility = "visible"}'>Dev Panel</button>
+            <button id ="help" onclick='{helpPanel.style.visibility = "visible"}'>Help</button>
         </div>
 
         <div class="infoPanel" id="rewardInfo" style="margin-left: 1%;">
@@ -152,6 +153,10 @@
             <button class="devPanelButton" id="addMatter" onclick='{addMatter(this.getElementsByTagName("input")[0].value);}'>Add <input type="number" value="0">
                 Matter</button>
             <button class="devPanelButton" id="DLC" onclick='{comingSoon();}'>???</button>
+        </div>
+
+        <div id="helpPanel">
+            <p></p>
         </div>
 
         <h1 id="displayedNumber">0</h1>
@@ -230,6 +235,7 @@
             const screenCover1 = document.getElementById("sC1");
             const statData = statArea.getElementsByTagName("p");
             const devPanel = document.getElementById("devPanel");
+            const helpPanel = document.getElementById("helpPanel");
 
             setTimePlayedInterval();
 

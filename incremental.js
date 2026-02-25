@@ -270,6 +270,7 @@ function updateStatArea(x = false) {
     statData[6].firstElementChild.value = simplify(numberOfAutoMatter);
     if (x) {return;}
     devPanel.style.visibility = "hidden";
+    helpPanel.style.visibility = "hidden";
     if (sC1.style.display == "none") {
         sC1.style.display = "initial";
         statArea.style.top = "20%";
@@ -363,8 +364,10 @@ function resetGame() {
 }
 
 function addMatter(x) {
+    x = parseInt(x)
     numberOfMatter += x;
     numberOfMatterTotal += x;
+    updateDisplayedNumber();
 }
 
 function comingSoon() {
