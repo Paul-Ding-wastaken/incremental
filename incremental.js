@@ -111,7 +111,10 @@ function buyUpgrade(x) {
         checkAchivements();
         if (x == 7 || x == 11) {
             if (!rewardInfoText[6][2] && secretRewardActive) {
-                rewardInfoText[6][2] = (upgrades[7][2] != 0) && (upgrades[11][2] != 0);
+                if ((upgrades[7][2] != 0) && (upgrades[11][2] != 0)) {
+                    rewardInfoText[6][2] = true;
+                    notificationSystem(rewardInfoText[6][0]);
+                }
             }
         }
         updateUpgradePriceText(x);
